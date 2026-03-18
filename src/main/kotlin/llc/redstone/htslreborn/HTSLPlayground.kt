@@ -8,7 +8,8 @@ import kotlin.io.path.Path
 // Used primarily for testing the tokenizer and preprocessor
 fun main(args: Array<String>) {
     val input = """
-    tp "custom_coordinates" "~%var.global/x% ~%var.global/y% ~%var.global/z%" false
+    // test
+    chat "hello world"
     """.trimIndent()
     val tokens = Tokenizer.tokenize(input)
     println("Tokens:")
@@ -20,7 +21,5 @@ fun main(args: Array<String>) {
 
     val parser = Parser.parse(preProcessedTokens, Path("test.htsl"))
         println("\nParsed Actions:")
-        parser["base"]?.forEach {
-            println(it)
-        }
+        println(parser)
 }

@@ -33,8 +33,8 @@ object Tokenizer {
                 matches("if( (and|false))?\\s*\\(") isToken Tokens.IF_AND_CONDITION_START thenState IF_CONDITION
                 matches("if (or|true)\\s*\\(") isToken Tokens.IF_OR_CONDITION_START thenState IF_CONDITION
 
-                comparatorTokens()
                 operatorTokens()
+                comparatorTokens()
 
                 anyOf("true", "false") isToken Tokens.BOOLEAN
                 "null" isToken Tokens.NULL
@@ -43,10 +43,10 @@ object Tokenizer {
 
                 matches("//.*") isToken Tokens.COMMENT
                 "/*" isToken Tokens.COMMENT thenState IN_MULTI_LINE_COMMENT
-                matches("-?(\\d{1,3}(,\\d{3})*|\\d+)\\.\\d+") isToken Tokens.DOUBLE
-                matches("-?(\\d{1,3}(,\\d{3})*|\\d+)D") isToken Tokens.DOUBLE
-                matches("-?(\\d{1,3}(,\\d{3})*|\\d+)L") isToken Tokens.LONG
-                matches("-?(\\d{1,3}(,\\d{3})*|\\d+)") isToken Tokens.INT
+                matches("-?(\\d{1,3}(,\\d{3})+|\\d+)\\.\\d+") isToken Tokens.DOUBLE
+                matches("-?(\\d{1,3}(,\\d{3})+|\\d+)D") isToken Tokens.DOUBLE
+                matches("-?(\\d{1,3}(,\\d{3})+|\\d+)L") isToken Tokens.LONG
+                matches("-?(\\d{1,3}(,\\d{3})+|\\d+)") isToken Tokens.INT
 
                 matches("\\s+").ignore
 
@@ -77,10 +77,10 @@ object Tokenizer {
                 anyOf(",", ", ") isToken Tokens.COMMA
 
                 matches("//.*") isToken Tokens.COMMENT
-                matches("-?(\\d{1,3}(,\\d{3})*|\\d+)\\.\\d+") isToken Tokens.DOUBLE
-                matches("-?(\\d{1,3}(,\\d{3})*|\\d+)D") isToken Tokens.DOUBLE
-                matches("-?(\\d{1,3}(,\\d{3})*|\\d+)L") isToken Tokens.LONG
-                matches("-?(\\d{1,3}(,\\d{3})*|\\d+)") isToken Tokens.INT
+                matches("-?(\\d{1,3}(,\\d{3})+|\\d+)\\.\\d+") isToken Tokens.DOUBLE
+                matches("-?(\\d{1,3}(,\\d{3})+|\\d+)D") isToken Tokens.DOUBLE
+                matches("-?(\\d{1,3}(,\\d{3})+|\\d+)L") isToken Tokens.LONG
+                matches("-?(\\d{1,3}(,\\d{3})+|\\d+)") isToken Tokens.INT
 
                 matches("\\s+").ignore
 

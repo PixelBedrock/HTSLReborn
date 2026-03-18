@@ -3,6 +3,7 @@ package llc.redstone.htslreborn.ui.components
 import io.wispforest.owo.ui.component.UIComponents
 import io.wispforest.owo.ui.core.Sizing
 import io.wispforest.owo.ui.core.UIComponent
+import kotlinx.io.files.Path
 import llc.redstone.htslreborn.HTSLReborn.MC
 import llc.redstone.htslreborn.HTSLReborn.exportingFile
 import llc.redstone.htslreborn.htslio.HTSLExporter
@@ -62,6 +63,7 @@ class CreateEntryComponent(
         exportingFile = path
         HTSLExporter.exportFile(path) {
             FileExplorer.INSTANCE.hideWorkingScreen()
+            search = ""
             FileHandler.refreshFiles()
             FileExplorer.INSTANCE.refreshExplorer()
         }
@@ -86,6 +88,10 @@ class CreateEntryComponent(
     }
 
     override fun onMouseDown(click: Click, doubled: Boolean): Boolean {
+        if (doubled) {
+            handleScriptExport()
+            return true
+        }
         return super.onMouseDown(click, false)
     }
 

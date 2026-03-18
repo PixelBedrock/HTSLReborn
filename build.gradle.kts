@@ -47,10 +47,13 @@ dependencies {
     implementation(include("guru.zoroark.tegral:tegral-niwen-lexer:0.0.4")!!)
     implementation(include("guru.zoroark.tegral:tegral-core:0.0.4")!!)
 
-    implementation(include("llc.redstone:SystemsData:1.1.1")!!)
+    implementation(include("llc.redstone:SystemsData:1.1.2")!!)
 
     modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.2")
 
+    testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 loom {
@@ -70,6 +73,17 @@ java {
     val javaVersion: JavaVersion = JavaVersion.VERSION_21
     targetCompatibility = javaVersion
     sourceCompatibility = javaVersion
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+    }
+    sourceSets {
+        val test by getting {
+            kotlin.srcDir("../../src/test/kotlin")
+        }
+    }
 }
 
 tasks {
@@ -95,5 +109,9 @@ tasks {
         from(remapJar.map { it.archiveFile }, remapSourcesJar.map { it.archiveFile })
         into(rootProject.layout.buildDirectory.file("libs/${project.property("mod.version")}"))
         dependsOn("build")
+    }
+
+    test {
+        useJUnitPlatform()
     }
 }

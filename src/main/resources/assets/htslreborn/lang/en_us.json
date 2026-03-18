@@ -61,7 +61,11 @@
   "text.config.htslreborn.option.importsDirectory": "Base Imports Directory",
   "text.config.htslreborn.option.importsDirectory.tooltip": "Changes the base directory of the\nfile explorer.",
   "text.config.htslreborn.option.fileDeleteConfirmation":  "Confirm File Deletion",
-    "text.config.htslreborn.option.fileDeleteConfirmation.tooltip": "Shows a confirmation dialog when deleting\n files from the file explorer.",
+  "text.config.htslreborn.option.fileDeleteConfirmation.tooltip": "Shows a confirmation dialog when deleting\nfiles from the file explorer.",
+  "text.config.htslreborn.option.widthScale": "Width Scale",
+  "text.config.htslreborn.option.widthScale.tooltip": "Scales the width of the file explorer. Useful for very high or low resolution screens.",
+  "text.config.htslreborn.option.heightScale": "Height Scale",
+  "text.config.htslreborn.option.heightScale.tooltip": "Scales the height of the file explorer. Useful for very high or low resolution screens.",
 
   "text.config.htslreborn.section.import": "Importing/Exporting",
   "text.config.htslreborn.option.defaultImportStrategy": "Default Import Strategy",

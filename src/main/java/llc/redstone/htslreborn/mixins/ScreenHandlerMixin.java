@@ -76,9 +76,12 @@ public class ScreenHandlerMixin extends Screen implements HandledScreenAccessor 
         }
     }
 
-    @Inject(method = "close", at = @At("HEAD"))
+    @Inject(method = "close", at = @At("HEAD"), cancellable = true)
     public void htslreborn$close(CallbackInfo ci) {
         if (!FileExplorer.inActionGui()) return;
+        if (HTSLReborn.INSTANCE.getImporting() || HTSLReborn.INSTANCE.getExporting()) {
+            ci.cancel();
+        }
         FileExplorer.getINSTANCE().close();
     }
 
