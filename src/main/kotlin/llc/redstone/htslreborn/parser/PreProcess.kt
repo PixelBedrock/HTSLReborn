@@ -36,7 +36,6 @@ object PreProcess {
             when (token.tokenType) {
                 is PlaceholderShortcuts -> {
                     val args = Tokenizer.tokenize(token.string, false)
-                    println(args)
                     fun stringOrEmpty(index: Int): String {
                         return args.getOrNull(index)?.string ?: ""
                     }
