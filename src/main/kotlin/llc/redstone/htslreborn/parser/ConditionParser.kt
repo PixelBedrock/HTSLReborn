@@ -141,7 +141,7 @@ object ConditionParser {
                 continue
             }
 
-            if (prop.returnType.isSubtypeOf(Keyed::class.starProjectedType)) {
+            if (prop.returnType.isSubtypeOf(Keyed::class.starProjectedType.withNullability(true))) {
                 val companion = prop.returnType.classifier
                     .let { it as? kotlin.reflect.KClass<*> }
                     ?.companionObjectInstance
