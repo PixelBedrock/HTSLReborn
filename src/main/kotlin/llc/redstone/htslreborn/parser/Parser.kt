@@ -10,9 +10,9 @@ import llc.redstone.systemsdata.Condition
 import java.nio.file.Path
 
 object Parser {
-    fun parse(tokens: List<TokenWithPosition>, path: Path?): MutableMap<String, List<Action>> {
+    fun parse(tokens: List<TokenWithPosition>, path: Path?): MutableList<Pair<String, List<Action>>> {
         val compiledActions = mutableListOf<Action>()
-        val gotoCompiled = mutableMapOf<String, List<Action>?>()
+        val gotoCompiled = mutableListOf<Pair<String, List<Action>?>>()
 
         var conditions = mutableListOf<Condition>()
         var conditional: String? = null
@@ -29,9 +29,9 @@ object Parser {
 
             when (token.tokenType) {
                 Tokens.GOTO_KEYWORD -> {
-                    val previous = gotoCompiled.entries.find { it.value == null }
-                    if (previous != null) {
-                        gotoCompiled[previous.key] = compiledActions.toMutableList()
+                    val previous = gotoCompiled.indexOfLast { it.second == null }
+                    if (previous != -1) {
+                        gotoCompiled[previous] = Pair(gotoCompiled[previous].first, compiledActions.toList())
                         compiledActions.clear()
                     }
 
@@ -58,11 +58,11 @@ object Parser {
                     }
 
                     if (gotoCompiled.isEmpty()) {
-                        gotoCompiled["base"] = compiledActions.toMutableList()
+                        gotoCompiled.add(Pair("base", compiledActions.toList()))
                         compiledActions.clear()
                     }
 
-                    gotoCompiled[args] = null
+                    gotoCompiled.add(Pair(args, null))
                 }
 
                 Tokens.RANDOM_KEYWORD -> {
@@ -149,17 +149,17 @@ object Parser {
         }
 
         if (gotoCompiled.isEmpty()) {
-            gotoCompiled["base"] = compiledActions.toMutableList()
+            gotoCompiled.add(Pair("base", compiledActions.toList()))
         } else {
-            val previous = gotoCompiled.entries.find { it.value == null }
-            if (previous != null) {
-                gotoCompiled[previous.key] = compiledActions.toMutableList()
+            val previous = gotoCompiled.indexOfLast { it.second == null }
+            if (previous != -1) {
+                gotoCompiled[previous] = Pair(gotoCompiled[previous].first, compiledActions.toList())
             }
         }
 
-        val returned = mutableMapOf<String, List<Action>>()
+        val returned = mutableListOf<Pair<String, List<Action>>>()
         for (entry in gotoCompiled) {
-            returned[entry.key] = entry.value ?: continue
+            returned.add(Pair(entry.first, entry.second ?: error("Goto '${entry.first}' is missing a body")))
         }
 
         return returned

@@ -8,8 +8,16 @@ import kotlin.io.path.Path
 // Used primarily for testing the tokenizer and preprocessor
 fun main(args: Array<String>) {
     val input = """
-        if (gamemode "Adventure") {
-    chat "hi"
+goto function "ASD"
+
+if () {
+
+}
+
+goto function "DSA"
+
+if () {
+
 }
     """.split("\n").joinToString("\n") { it.trim() }
     val tokens = Tokenizer.tokenize(input)

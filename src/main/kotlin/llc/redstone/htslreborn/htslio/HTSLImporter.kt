@@ -30,7 +30,7 @@ object HTSLImporter {
         supportsBase: Boolean = true,
         onComplete: () -> Unit = {}
     ) {
-        val compiledCode: MutableMap<String, List<Action>>
+        val compiledCode: MutableList<Pair<String, List<Action>>>
         try {
             var tokens = Tokenizer.tokenize(path)
             tokens = PreProcess.preProcess(tokens)
@@ -47,12 +47,12 @@ object HTSLImporter {
 
     fun import(
         path: Path,
-        compiledCode: MutableMap<String, List<Action>>,
+        compiledCode: MutableList<Pair<String, List<Action>>>,
         method: suspend (ActionContainer, List<Action>) -> Unit = ActionContainer::addActions,
         supportsBase: Boolean = true,
         onComplete: () -> Unit = {}
     ) {
-        if (compiledCode.contains("base") && compiledCode["base"]?.isNotEmpty() == true && !supportsBase) {
+        if (compiledCode.any { it.first == "base" && it.second.isNotEmpty() } && !supportsBase) {
             MinecraftClient.getInstance().player?.sendMessage(
                 Text.of("Couldn't use actions before a goto call.").copy().withColor(Colors.RED), false
             )
@@ -80,27 +80,38 @@ object HTSLImporter {
                     val args = goto.substringAfter(" ")
                     when (type) {
                         "base" -> {
-                            SystemsAPI.getHousingImporter().getOpenActionContainer()
-                                ?.let { method(it, actions) }
+                            if (actions.isNotEmpty()) {
+                                SystemsAPI.getHousingImporter().getOpenActionContainer()
+                                    ?.let { method(it, actions) }
+                            }
                         }
 
                         "function" -> {
                             val function = SystemsAPI.getHousingImporter().getFunction(args)
                                 ?: SystemsAPI.getHousingImporter().createFunction(args)
-
-                            method(function.getActionContainer(), actions)
+                            if (actions.isNotEmpty()) {
+                                MC.player?.closeScreen()
+                                val actionContainer = function.getActionContainer()
+                                method(actionContainer, actions)
+                            }
                         }
 
                         "command" -> {
                             val command = SystemsAPI.getHousingImporter().getCommand(args)
                                 ?: SystemsAPI.getHousingImporter().createCommand(args)
 
-                            method(command.getActionContainer(), actions)
+                            if (actions.isNotEmpty()) {
+                                MC.player?.closeScreen()
+                                val actionContainer = command.getActionContainer()
+                                method(actionContainer, actions)
+                            }
                         }
 
                         "event" -> {
-                            SystemsAPI.getHousingImporter().getEvent(Event.Events.valueOf(args))
-                                .let { method(it, actions) }
+                            if (actions.isNotEmpty()) {
+                                SystemsAPI.getHousingImporter().getEvent(Event.Events.valueOf(args))
+                                    .let { method(it, actions) }
+                            }
                         }
 
                         "gui" -> {
@@ -110,8 +121,10 @@ object HTSLImporter {
                             val menu = SystemsAPI.getHousingImporter().getMenu(name)
                                 ?: SystemsAPI.getHousingImporter().createMenu(name)
 
-                            menu.getMenuElement(slot).getActionContainer()
-                                ?.let { method(it, actions) } ?: error("Slot $slot does not exist in menu $name")
+                            if (actions.isNotEmpty()) {
+                                menu.getMenuElement(slot).getActionContainer()
+                                    ?.let { method(it, actions) } ?: error("Slot $slot does not exist in menu $name")
+                            }
                         }
                     }
                 }
