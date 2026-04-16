@@ -45,6 +45,7 @@ class FileExplorer : BaseOwoScreen<FlowLayout>() {
     companion object {
         @JvmStatic
         var INSTANCE = FileExplorer()
+        var isMinimized = false
 
         @JvmStatic
         fun inActionGui(): Boolean {
@@ -53,6 +54,12 @@ class FileExplorer : BaseOwoScreen<FlowLayout>() {
             val screen = MC.currentScreen as? GenericContainerScreen ?: return false
             val title = screen.title.string
             return title.contains(Regex(I18n.translate("htslreborn.action.container.title")))
+        }
+    }
+
+    init {
+        if (HTSLReborn.CONFIG.isMinimizedByDefault) {
+            isMinimized = true
         }
     }
 
@@ -68,11 +75,47 @@ class FileExplorer : BaseOwoScreen<FlowLayout>() {
     }
 
     private fun buildTitle(): UIComponent {
-        return UIComponents.label(Text.translatable("htslreborn.explorer.title")).apply {
-            sizing(Sizing.fill(), Sizing.content())
-            horizontalTextAlignment(HorizontalAlignment.CENTER)
-            verticalTextAlignment(VerticalAlignment.CENTER)
+        return UIContainers.horizontalFlow(Sizing.fill(), Sizing.content()).apply {
+            alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
             margins(Insets.of(2))
+
+            child(
+                UIComponents.label(Text.translatable("htslreborn.explorer.title")).apply {
+                    sizing(Sizing.expand(), Sizing.content())
+                    horizontalTextAlignment(HorizontalAlignment.CENTER)
+                }
+            )
+
+            child(
+                UIComponents.button(Text.literal("-")) {
+                    toggleMinimize()
+                }.apply {
+                    sizing(Sizing.fixed(16), Sizing.fixed(16))
+                    margins(Insets.right(2))
+                    setTooltip(Tooltip.of(Text.translatable("htslreborn.explorer.minimize")))
+                }
+            )
+        }
+    }
+
+    private fun toggleMinimize() {
+        isMinimized = !isMinimized
+        this.uiAdapter.rootComponent.clearChildren()
+
+        this.build(this.uiAdapter.rootComponent)
+    }
+
+    private fun buildMinimizePopout(): UIComponent {
+        return UIContainers.horizontalFlow(Sizing.fill(), Sizing.fixed(20)).apply {
+            child(
+                UIComponents.button(Text.literal(">")) {
+                    toggleMinimize()
+                }.apply {
+                    sizing(Sizing.fixed(20), Sizing.fixed(20))
+                    setTooltip(Tooltip.of(Text.translatable("htslreborn.explorer.expand")))
+                }
+            )
+            alignment(HorizontalAlignment.LEFT, VerticalAlignment.CENTER)
         }
     }
 
@@ -258,17 +301,17 @@ class FileExplorer : BaseOwoScreen<FlowLayout>() {
         }
     }
 
-    val breadcrumbs: FlowLayout = UIContainers.horizontalFlow(Sizing.fill(), Sizing.fixed(20)).apply {
-        gap(4)
-        alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
-    }
+    lateinit var breadcrumbs: FlowLayout
 
     fun refreshBreadcrumbs() {
         val subDir = FileHandler.currentDir
 
-        val update = {
-            breadcrumbs.clearChildren()
+        breadcrumbs = UIContainers.horizontalFlow(Sizing.fill(), Sizing.fixed(20)).apply {
+            gap(4)
+            alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
+        }
 
+        val update = {
             val names = (baseDir.nameCount - 1 until subDir.nameCount).map { subDir.getName(it).toString() }
             names.forEachIndexed { index, name ->
                 if (index > 0) breadcrumbs.child(UIComponents.label(Text.literal(">").withColor(0x505050)))
@@ -329,14 +372,14 @@ class FileExplorer : BaseOwoScreen<FlowLayout>() {
         if (importScreen != null) this.uiAdapter.rootComponent.removeChild(importScreen)
     }
 
-    val base: FlowLayout = UIContainers.verticalFlow(Sizing.fill(), Sizing.fill())
+    var base: FlowLayout = UIContainers.verticalFlow(Sizing.fill(), Sizing.fill())
 
     public override fun build(root: FlowLayout) {
         val accessor =
             (MC.currentScreen as? HandledScreenAccessor) ?: throw IllegalStateException("Could not get accessor")
 
-        refreshFiles(true)
-        refreshBreadcrumbs()
+        //Needs to be recreated for minimize toggle to work
+        base = UIContainers.verticalFlow(Sizing.fill(), Sizing.fill())
 
         root.apply {
             sizing(Sizing.fixed(accessor.getGuiLeft()), Sizing.fixed(MC.window.scaledHeight))
@@ -344,28 +387,36 @@ class FileExplorer : BaseOwoScreen<FlowLayout>() {
             verticalAlignment(VerticalAlignment.CENTER)
             horizontalAlignment(HorizontalAlignment.RIGHT)
 
-            child(
-                base.apply {
-                    sizing(
-                        Sizing.fixed((accessor.getGuiLeft() * HTSLReborn.CONFIG.widthScale).toInt() - 10),
-                        Sizing.fixed((MC.window.scaledHeight * HTSLReborn.CONFIG.heightScale).toInt() - 10)
-                    )
+            if (isMinimized) {
+                child(buildMinimizePopout())
+            } else {
+                refreshFiles(true)
+                refreshBreadcrumbs()
 
-                    id("base")
-                    surface(Surface.DARK_PANEL)
-                    padding(Insets.of(5))
-
-                    children(
-                        listOf(
-                            buildTitle(),
-                            buildHeader(),
-                            buildExplorer(),
-                            buildContextButtons(),
-                            breadcrumbs
+                child(
+                    base.apply {
+                        sizing(
+                            Sizing.fixed((accessor.getGuiLeft() * HTSLReborn.CONFIG.widthScale).toInt() - 10),
+                            Sizing.fixed((MC.window.scaledHeight * HTSLReborn.CONFIG.heightScale).toInt() - 10)
                         )
-                    )
-                }
-            )
+
+                        id("base")
+                        surface(Surface.DARK_PANEL)
+                        padding(Insets.of(5))
+
+                        clearChildren()
+                        children(
+                            listOf(
+                                buildTitle(),
+                                buildHeader(),
+                                buildExplorer(),
+                                buildContextButtons(),
+                                breadcrumbs
+                            )
+                        )
+                    }
+                )
+            }
 
             if (importing) {
                 showWorkingScreen(WorkingScreenType.IMPORT, importingFile!!.name)
