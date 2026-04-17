@@ -71,6 +71,9 @@ class FileExplorer : BaseOwoScreen<FlowLayout>() {
 
     override fun close() {
         Cursor.DEFAULT.applyTo(MC.window)
+        if (SystemsAPI.getHousingImporter().isImporting()) {
+            SystemsAPI.getHousingImporter().cancelImport()
+        }
         super.close()
     }
 
