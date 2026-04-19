@@ -21,12 +21,7 @@ import llc.redstone.htslreborn.ui.FileHandler.htslExtensions
 import llc.redstone.htslreborn.ui.FileHandler.itemExtensions
 import llc.redstone.htslreborn.ui.FileHandler.refreshFiles
 import llc.redstone.htslreborn.ui.FileHandler.search
-import llc.redstone.htslreborn.ui.components.ExplorerEntryComponent
-import llc.redstone.htslreborn.ui.components.CreateEntryComponent
-import llc.redstone.htslreborn.ui.components.FolderEntryComponent
-import llc.redstone.htslreborn.ui.components.ItemEntryComponent
-import llc.redstone.htslreborn.ui.components.ScriptEntryComponent
-import llc.redstone.htslreborn.ui.components.TimeRemainingComponent
+import llc.redstone.htslreborn.ui.components.*
 import llc.redstone.systemsapi.SystemsAPI
 import net.minecraft.client.gui.cursor.Cursor
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen
@@ -83,19 +78,18 @@ class FileExplorer : BaseOwoScreen<FlowLayout>() {
             margins(Insets.of(2))
 
             child(
-                UIComponents.label(Text.translatable("htslreborn.explorer.title")).apply {
-                    sizing(Sizing.expand(), Sizing.content())
-                    horizontalTextAlignment(HorizontalAlignment.CENTER)
-                }
-            )
-
-            child(
                 UIComponents.button(Text.literal("-")) {
                     toggleMinimize()
                 }.apply {
                     sizing(Sizing.fixed(16), Sizing.fixed(16))
-                    margins(Insets.right(2))
                     setTooltip(Tooltip.of(Text.translatable("htslreborn.explorer.minimize")))
+                }
+            )
+
+            child(
+                UIComponents.label(Text.translatable("htslreborn.explorer.title")).apply {
+                    sizing(Sizing.expand(), Sizing.content())
+                    horizontalTextAlignment(HorizontalAlignment.CENTER)
                 }
             )
         }
@@ -109,16 +103,12 @@ class FileExplorer : BaseOwoScreen<FlowLayout>() {
     }
 
     private fun buildMinimizePopout(): UIComponent {
-        return UIContainers.horizontalFlow(Sizing.fill(), Sizing.fixed(20)).apply {
-            child(
-                UIComponents.button(Text.literal(">")) {
-                    toggleMinimize()
-                }.apply {
-                    sizing(Sizing.fixed(20), Sizing.fixed(20))
-                    setTooltip(Tooltip.of(Text.translatable("htslreborn.explorer.expand")))
-                }
-            )
-            alignment(HorizontalAlignment.LEFT, VerticalAlignment.CENTER)
+        return UIComponents.button(Text.literal("□")) {
+            toggleMinimize()
+        }.apply {
+            sizing(Sizing.fixed(16), Sizing.fixed(16))
+            setTooltip(Tooltip.of(Text.translatable("htslreborn.explorer.expand")))
+            positioning(Positioning.absolute(7, 7));
         }
     }
 
