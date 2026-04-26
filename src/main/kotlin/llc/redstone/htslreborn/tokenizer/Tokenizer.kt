@@ -46,7 +46,7 @@ object Tokenizer {
                 '\n' isToken Tokens.NEWLINE
 
                 matches("//.*") isToken Tokens.COMMENT
-                "/*" isToken Tokens.COMMENT thenState IN_MULTI_LINE_COMMENT
+                matches("(?s)/\\*.*?\\*/") isToken Tokens.COMMENT
                 matches("-?(\\d{1,3}(,\\d{3})+|\\d+)\\.\\d+") isToken Tokens.DOUBLE
                 matches("-?(\\d{1,3}(,\\d{3})+|\\d+)D") isToken Tokens.DOUBLE
                 matches("-?(\\d{1,3}(,\\d{3})+|\\d+)L") isToken Tokens.LONG
@@ -67,10 +67,6 @@ object Tokenizer {
 
             }
 
-            IN_MULTI_LINE_COMMENT state {
-                matches("([^*]|(\\*+[^*/]))+") isToken Tokens.COMMENT
-                "*/" isToken Tokens.COMMENT thenState default
-            }
 
             IF_CONDITION state {
                 anyOf(*conditionKeywords.toTypedArray()) isToken Tokens.CONDITION_KEYWORD
