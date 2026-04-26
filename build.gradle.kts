@@ -5,6 +5,7 @@ plugins {
     `maven-publish`
 }
 
+group = "llc.redstone"
 version = "${property("mod.version")}+${stonecutter.current.version}"
 base.archivesName = property("mod.id") as String
 
